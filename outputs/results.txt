@@ -1,122 +1,122 @@
 
 ===== STEP 1: DATA COLLECTION AND PRE-PROCESSING =====
-Downloaded 501 rows for GOOGL, saved to data/stock.csv
+Downloaded 501 live rows for AMZN, saved to data/AMZN.csv
 Missing closing prices found: 0 (rows dropped)
 Clean data: 501 trading days from 2024-10-22 to 2026-10-21
       Date      Close    Return  x  x_scaled
-2024-10-22 163.988434       NaN  0     0.000
-2024-10-23 161.644897 -1.429086  1     0.002
-2024-10-24 161.585327 -0.036853  2     0.004
-2024-10-25 164.117554  1.567114  3     0.006
-2024-10-28 165.557434  0.877347  4     0.008
+2024-10-22 189.699997       NaN  0     0.000
+2024-10-23 184.710007 -2.630464  1     0.002
+2024-10-24 186.380005  0.904119  2     0.004
+2024-10-25 187.830002  0.777979  3     0.006
+2024-10-28 188.389999  0.298141  4     0.008
 
 ===== STEP 2: DESCRIPTIVE STATISTICS (Unit IV) =====
-Closing price  : mean = 259.527, median = 254.059, mode (rounded) = 168.0
-Daily return % : mean = 0.163, median = 0.094, mode (rounded) = -0.3
+Closing price  : mean = 227.193, median = 227.010, mode (rounded) = 223.0
+Daily return % : mean = 0.088, median = 0.031, mode (rounded) = 0.3
 
-Daily return mean: formula = 0.16298, numpy = 0.16298
-Daily return std : formula = 2.01605, numpy = 2.01605
+Daily return mean: formula = 0.08786, numpy = 0.08786
+Daily return std : formula = 2.15985, numpy = 2.15985
 
 ===== STEP 3: TREND ANALYSIS (Unit IV) =====
 Trend (T)     : long-term upward or downward movement of the price.
 Seasonal (S)  : pattern that repeats within a year (e.g. results season).
 Cyclical (C)  : long up-and-down waves lasting more than a year (business cycles).
 Irregular (I) : random, unpredictable changes (news, shocks).
-Latest 5-day MA = 341.81, latest 20-day MA = 345.18
+Latest 5-day MA = 258.44, latest 20-day MA = 254.46
 
 ===== STEP 4: DAILY RETURNS AND NORMAL DISTRIBUTION (Unit III, CO3) =====
-Returns ~ Normal(mean = 0.163%, sd = 2.016%)
-P(return > 0)   = 1 - CDF(0)  = 0.532
-P(return < -2%) = CDF(-2)     = 0.142
+Returns ~ Normal(mean = 0.088%, sd = 2.160%)
+P(return > 0)   = 1 - CDF(0)  = 0.516
+P(return < -2%) = CDF(-2)     = 0.167
 
 ===== STEP 5-6: POLYNOMIAL REGRESSION AND FORECAST (Unit IV, CO3, CO4) =====
 Train: 400 days, Test: 101 days (no shuffling)
 
 Degree    Train MSE       Test MSE  Train R2    Test R2
-     1      1016.95        1267.47     0.800     -7.692
-     2       574.79       15484.37     0.887   -105.190
-     3       463.87         771.23     0.909     -4.289
-     4       446.66        4647.38     0.912    -30.871
-     5       180.99      574364.31     0.964  -3937.928
-     6       137.47     2429348.36     0.973 -16659.208
+     1       302.69         189.92     0.271     -0.385
+     2       287.22         199.37     0.308     -0.453
+     3       285.55         568.37     0.312     -3.144
+     4       274.78        8520.74     0.338    -61.120
+     5       143.80      449411.97     0.654  -3275.428
+     6       135.40      103606.82     0.674   -754.343
 
-Chosen degree = 3 (lowest test MSE = 771.23, test R2 = -4.289)
+Chosen degree = 1 (lowest test MSE = 189.92, test R2 = -0.385)
 Justification: a lower degree UNDERFITS (too simple to follow the curve), while
 a higher degree OVERFITS: train MSE keeps falling, but it learns noise and test
 MSE rises. The best degree balances both, judged on data the model never saw.
 
-Pearson r  : formula = -0.2866, scipy = -0.2866
-Spearman rho (rank correlation) = -0.2666
+Pearson r  : formula = 0.3639, scipy = 0.3639
+Spearman rho (rank correlation) = 0.4368
 
-Residual std (sigma) = 20.31, 95% band = prediction ± 39.81
+Residual std (sigma) = 16.51, 95% band = prediction ± 32.36
         Date   Forecast  Lower 95%  Upper 95%
-  2026-10-22     326.35     286.54     366.16
-  2026-10-23     325.40     285.59     365.21
-  2026-10-26     324.43     284.62     364.24
-  2026-10-27     323.44     283.63     363.26
-  2026-10-28     322.45     282.64     362.26
-  2026-10-29     321.43     281.62     361.24
-  2026-10-30     320.41     280.59     360.22
-  2026-11-02     319.36     279.55     359.17
-  2026-11-03     318.30     278.49     358.11
-  2026-11-04     317.23     277.42     357.04
+  2026-10-22     254.35     221.99     286.72
+  2026-10-23     254.46     222.10     286.82
+  2026-10-26     254.57     222.21     286.93
+  2026-10-27     254.68     222.31     287.04
+  2026-10-28     254.79     222.42     287.15
+  2026-10-29     254.89     222.53     287.26
+  2026-10-30     255.00     222.64     287.37
+  2026-11-02     255.11     222.75     287.47
+  2026-11-03     255.22     222.85     287.58
+  2026-11-04     255.33     222.96     287.69
 
-Forecast trend: DOWNWARD (326.35 -> 317.23)
+Forecast trend: UPWARD (254.35 -> 255.33)
 
 ===== STEP 7: HYPOTHESIS TESTS (Unit V, CO5) =====
 
-95% CI for mean daily return: 0.1630 ± 0.1771 = (-0.0142%, 0.3401%)
+95% CI for mean daily return: 0.0879 ± 0.1898 = (-0.1019%, 0.2776%)
 
 --- Confidence interval / test for mean daily return ---
 H0: mean daily return = 0
 H1: mean daily return != 0
-Test statistic = 1.8077, p-value = 0.0713
+Test statistic = 0.9096, p-value = 0.3634
 Decision at alpha = 0.05: Fail to reject H0
 Conclusion: 0 is inside the CI, so the average daily return could be zero.
 
 --- One-sample t-test on test residuals ---
 H0: mean residual = 0 (model is unbiased)
 H1: mean residual != 0 (model is biased)
-Test statistic = -17.8440, p-value = 0.0000
+Test statistic = 7.5028, p-value = 0.0000
 Decision at alpha = 0.05: Reject H0
-Conclusion: The model is biased: on average it is off by -24.23 on unseen days.
+Conclusion: The model is biased: on average it is off by 8.27 on unseen days.
 
---- F-test: linear vs degree 3 residual variance ---
+--- F-test: linear vs degree 2 residual variance ---
 H0: both models have equal residual variance
 H1: linear model has larger residual variance
-Test statistic = 2.1813, p-value = 0.0000
-Decision at alpha = 0.05: Reject H0
-Conclusion: Degree 3 fits significantly better than a straight line.
+Test statistic = 1.0512, p-value = 0.3094
+Decision at alpha = 0.05: Fail to reject H0
+Conclusion: The polynomial is not significantly better than a straight line.
 
-Bins after merging: 5, observed = [10, 33, 27, 13, 10], expected = [14.4, 23.9, 29.9, 11.3, 8.9], dof = 2
+Bins after merging: 6, observed = [7, 12, 38, 25, 9, 6], expected = [6.9, 15.9, 27.0, 27.4, 7.4, 5.9], dof = 3
 
 --- Chi-square goodness of fit (residuals vs Normal) ---
 H0: residuals follow a Normal distribution
 H1: residuals do not follow a Normal distribution
-Test statistic = 5.4739, p-value = 0.0648
+Test statistic = 5.9858, p-value = 0.1123
 Decision at alpha = 0.05: Fail to reject H0
 Conclusion: Residuals look Normal, so the ±1.96σ band is justified.
 
 Contingency table (rows: actual High/Low, columns: predicted High/Low):
-[[17 33]
- [33 18]]
+[[37 13]
+ [13 38]]
 
 --- Chi-square test of independence (actual vs predicted High/Low) ---
 H0: actual and predicted High/Low are independent
 H1: actual and predicted High/Low are related
-Test statistic = 8.3341, p-value = 0.0039
+Test statistic = 21.8664, p-value = 0.0000
 Decision at alpha = 0.05: Reject H0
 Conclusion: The model correctly separates high-price days from low-price days.
 
 ===== SUMMARY =====
-Stock                       : GOOGL
-Chosen polynomial degree    : 3
-Test MSE / Test R2          : 771.23 / -4.289
-Pearson r / Spearman rho    : -0.287 / -0.267
-Forecast trend              : DOWNWARD (day 10: 317.23 ± 39.81)
+Stock                       : AMZN
+Chosen polynomial degree    : 1
+Test MSE / Test R2          : 189.92 / -0.385
+Pearson r / Spearman rho    : 0.364 / 0.437
+Forecast trend              : UPWARD (day 10: 255.33 ± 32.36)
 CI mean return              : Fail to reject H0
 t-test residuals            : Reject H0
-F-test                      : Reject H0
+F-test                      : Fail to reject H0
 Chi-square normality        : Fail to reject H0
 Chi-square independence     : Reject H0
 

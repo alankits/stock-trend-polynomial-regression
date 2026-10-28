@@ -144,6 +144,14 @@ def index():
     return send_from_directory("static", "index.html")
 
 
+@app.route("/concepts")
+@app.route("/concepts-and-architecture")
+@app.route("/syllabus")
+@app.route("/docs")
+def syllabus():
+    return send_from_directory("static", "syllabus.html")
+
+
 @app.route("/api/stocks")
 def api_stocks():
     """Return the list of preset stock options."""

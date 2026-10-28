@@ -54,6 +54,62 @@
             pointer-events: none;
         }
 
+        /* ── Top Navigation ────────────────────────────────────────── */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(18, 18, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 20px;
+            margin-bottom: 24px;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-icon { font-size: 1.4rem; }
+        .brand-text { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.3px; }
+        .brand-text strong { color: var(--accent-light); }
+        .brand-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            border-radius: 12px;
+            color: var(--accent-light);
+            letter-spacing: 0.3px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .nav-link:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .nav-link.active {
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 2px 10px rgba(108, 92, 231, 0.3);
+        }
+
         /* ── Layout ────────────────────────────────────────────────── */
         .app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 24px; }
 
@@ -429,6 +485,9 @@
 
         /* ── Responsive ────────────────────────────────────────────── */
         @media (max-width: 768px) {
+            .top-nav { flex-direction: column; gap: 12px; align-items: stretch; text-align: center; }
+            .nav-brand { justify-content: center; }
+            .nav-links { justify-content: center; }
             .controls { grid-template-columns: 1fr; }
             .stock-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
             .header h1 { font-size: 1.4rem; }
@@ -444,6 +503,19 @@
     </div>
 
     <div class="app">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="nav-brand">
+                <span class="brand-icon">📈</span>
+                <span class="brand-text">StockStat <strong>AI</strong></span>
+                <span class="brand-tag">25CS203 Micro Project</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">⚡ Live Prediction Engine</a>
+                <a href="/concepts" class="nav-link">📘 Concepts and Architecture</a>
+            </div>
+        </nav>
+
         <!-- Header -->
         <header class="header">
             <h1>📈 Stock Price Trend Prediction</h1>

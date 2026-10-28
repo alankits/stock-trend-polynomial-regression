@@ -27,6 +27,7 @@ Features:
 - **Full Plot Gallery**: Tabbed viewer for all 7 high-resolution charts.
 - **Statistical Hypothesis Decisions**: Clear cards displaying results for Confidence Interval, $t$-test, $F$-test, and Chi-square tests.
 - **Step-by-Step Execution Logs**: Expandable breakdown for each phase of analysis.
+- **Concepts and Architecture Page**: Accessible at **[http://localhost:5000/concepts](http://localhost:5000/concepts)** with theoretical derivations, math formula sheet, and curriculum mapping.
 
 ### 2. Command-Line Version
 

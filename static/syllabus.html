@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concepts and Architecture — StockStat AI</title>
+    <meta name="description" content="Detailed curriculum mapping, statistical theory, mathematical formulas, and technical pipeline architecture for Stock Price Trend Prediction.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- KaTeX for crisp mathematical formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+    <style>
+        /* ── Reset & Theme ─────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg-primary:   #0a0a1a;
+            --bg-card:      #12122a;
+            --bg-card-alt:  #181838;
+            --bg-input:     #0e0e22;
+            --border:       #2a2a50;
+            --border-glow:  #6c5ce7;
+            --accent:       #6c5ce7;
+            --accent-light: #a29bfe;
+            --accent-dim:   rgba(108, 92, 231, 0.15);
+            --green:        #00d2a0;
+            --green-dim:    rgba(0, 210, 160, 0.15);
+            --red:          #ff6b6b;
+            --red-dim:      rgba(255, 107, 107, 0.15);
+            --orange:       #fdcb6e;
+            --orange-dim:   rgba(253, 203, 110, 0.15);
+            --cyan:         #00cec9;
+            --cyan-dim:     rgba(0, 206, 201, 0.15);
+            --text:         #e8e8f0;
+            --text-muted:   #8a8ab0;
+            --text-dim:     #555575;
+            --radius:       12px;
+            --radius-sm:    8px;
+            --shadow:       0 8px 30px rgba(0,0,0,0.5);
+            --transition:   all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        html { font-size: 15px; scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+
+        /* ── Animated Background ───────────────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 10%, rgba(108,92,231,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,210,160,0.06) 0%, transparent 60%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 24px; }
+
+        /* ── Top Navigation ────────────────────────────────────────── */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(18, 18, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 20px;
+            margin-bottom: 24px;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-icon { font-size: 1.4rem; }
+        .brand-text { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.3px; }
+        .brand-text strong { color: var(--accent-light); }
+        .brand-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            border-radius: 12px;
+            color: var(--accent-light);
+            letter-spacing: 0.3px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .nav-link:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .nav-link.active {
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 2px 10px rgba(108, 92, 231, 0.3);
+        }
+
+        /* ── Header ────────────────────────────────────────────────── */
+        .page-header {
+            text-align: center;
+            padding: 40px 24px 32px;
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-alt) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--green), var(--cyan), var(--accent));
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        @keyframes shimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .page-header h1 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 20%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 0.96rem;
+            max-width: 800px;
+            margin: 0 auto 16px;
+        }
+        .page-header .meta-badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .badge--unit3 { background: var(--cyan-dim);   color: var(--cyan);         border: 1px solid rgba(0,206,201,0.3); }
+        .badge--unit4 { background: var(--green-dim);  color: var(--green);        border: 1px solid rgba(0,210,160,0.3); }
+        .badge--unit5 { background: var(--orange-dim); color: var(--orange);       border: 1px solid rgba(253,203,110,0.3); }
+        .badge--co    { background: var(--accent-dim); color: var(--accent-light); border: 1px solid rgba(108,92,231,0.3); }
+
+        /* ── Sticky Section Quick Nav ──────────────────────────────── */
+        .section-nav {
+            position: sticky;
+            top: 16px;
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+            background: rgba(18, 18, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px;
+            margin-bottom: 32px;
+            overflow-x: auto;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .section-nav a {
+            flex: 1;
+            min-width: max-content;
+            text-align: center;
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .section-nav a:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .section-nav a.active {
+            color: #fff;
+            background: var(--accent);
+        }
+
+        /* ── Content Blocks ────────────────────────────────────────── */
+        .content-section {
+            margin-bottom: 44px;
+            scroll-margin-top: 80px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            color: #fff;
+        }
+        .section-title .icon {
+            font-size: 1.5rem;
+        }
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+
+        /* ── Architecture Pipeline Flow ────────────────────────────── */
+        .pipeline-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .pipeline-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        .pipeline-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+        .pipeline-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .pipeline-step-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            background: var(--accent-dim);
+            border: 1px solid rgba(108,92,231,0.3);
+            border-radius: 6px;
+            padding: 3px 10px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .pipeline-card .file-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--green);
+            background: var(--green-dim);
+            padding: 3px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .pipeline-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.35;
+        }
+        .pipeline-card p {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin-bottom: 14px;
+            flex-grow: 1;
+        }
+        .pipeline-card .key-actions {
+            list-style: none;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.78rem;
+            color: #c4c4e0;
+            margin-top: auto;
+        }
+        .pipeline-card .key-actions li {
+            position: relative;
+            padding-left: 14px;
+            margin-bottom: 5px;
+        }
+        .pipeline-card .key-actions li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-light);
+        }
+
+        /* ── Technical Deep Dive Callout Cards ─────────────────────── */
+        .callout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .callout-box {
+            background: var(--bg-card-alt);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 18px 20px;
+        }
+        .callout-box.green { border-left-color: var(--green); }
+        .callout-box.orange { border-left-color: var(--orange); }
+        .callout-box.cyan { border-left-color: var(--cyan); }
+        .callout-box h4 {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .callout-box p {
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .callout-box code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-light);
+        }
+
+        /* ── Concept Deep Dive Cards ───────────────────────────────── */
+        .concept-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+        .concept-card:hover {
+            border-color: rgba(108, 92, 231, 0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .concept-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .concept-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .concept-badges {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .concept-body {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .concept-body { grid-template-columns: 1fr; }
+        }
+        .concept-explanation p {
+            font-size: 0.88rem;
+            color: #c0c0d8;
+            line-height: 1.65;
+            margin-bottom: 12px;
+        }
+        .concept-explanation ul {
+            list-style: none;
+            padding-left: 0;
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .concept-explanation ul li {
+            padding-left: 18px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+        .concept-explanation ul li::before {
+            content: '•';
+            position: absolute;
+            left: 4px;
+            color: var(--accent-light);
+            font-size: 1.1rem;
+        }
+        .formula-box {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .formula-box .formula-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent-light);
+        }
+        .formula-box .math-display {
+            font-size: 1.05rem;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            overflow-x: auto;
+        }
+        .formula-box .variables {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 8px;
+        }
+
+        /* ── Hypothesis Testing Matrix ─────────────────────────────── */
+        .test-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .test-detail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        .test-detail-card:hover {
+            border-color: var(--orange);
+            transform: translateY(-2px);
+        }
+        .test-detail-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .test-detail-card .hypothesis-pair {
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            margin: 12px 0;
+            font-size: 0.82rem;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.5;
+        }
+        .test-detail-card .hypothesis-pair .h0 { color: #f0f0ff; }
+        .test-detail-card .hypothesis-pair .h1 { color: var(--orange); margin-top: 4px; }
+        .test-detail-card .test-desc {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 12px;
+            flex-grow: 1;
+        }
+        .test-detail-card .decision-rule {
+            background: rgba(253, 203, 110, 0.08);
+            border: 1px solid rgba(253, 203, 110, 0.25);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            font-size: 0.78rem;
+            color: #ffeaa7;
+        }
+
+        /* ── Modern Table Styles ───────────────────────────────────── */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow-x: auto;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+        }
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+        .custom-table th {
+            background: var(--bg-card-alt);
+            color: #fff;
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            border-bottom: 1px solid var(--border);
+        }
+        .custom-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: #c4c4e0;
+            line-height: 1.5;
+        }
+        .custom-table tr:hover td {
+            background: rgba(255,255,255,0.02);
+            color: #fff;
+        }
+        .code-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.76rem;
+            color: var(--accent-light);
+            background: var(--accent-dim);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ── Footer ────────────────────────────────────────────────── */
+        .footer {
+            text-align: center;
+            padding: 32px 20px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        .footer a { color: var(--accent-light); text-decoration: none; }
+
+        /* ── Responsive ────────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .top-nav { flex-direction: column; gap: 12px; align-items: stretch; text-align: center; }
+            .nav-brand { justify-content: center; }
+            .nav-links { justify-content: center; }
+            .page-header h1 { font-size: 1.6rem; }
+            .pipeline-flow { grid-template-columns: 1fr; }
+            .test-detail-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="nav-brand">
+                <span class="brand-icon">📈</span>
+                <span class="brand-text">StockStat <strong>AI</strong></span>
+                <span class="brand-tag">25CS203 Micro Project</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">⚡ Live Prediction Engine</a>
+                <a href="/concepts" class="nav-link active">📘 Concepts and Architecture</a>
+            </div>
+        </nav>
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1>Concepts and Architecture</h1>
+            <p>
+                A comprehensive technical guide mapping statistical theory, mathematical formulations, and system architecture to the production codebase for Stock Price Trend Prediction.
+            </p>
+            <div class="meta-badges">
+                <span class="badge badge--unit3">Unit III — Continuous Distributions</span>
+                <span class="badge badge--unit4">Unit IV — Descriptive & Regression</span>
+                <span class="badge badge--unit5">Unit V — Hypothesis Testing</span>
+                <span class="badge badge--co">CO3, CO4, CO5 Mapped</span>
+            </div>
+        </header>
+
+        <!-- Section Navigation -->
+        <div class="section-nav">
+            <a href="#architecture">🏗️ System Architecture & Working</a>
+            <a href="#unit3">📐 Unit III: Normal & Returns</a>
+            <a href="#unit4">📊 Unit IV: Trends & Regression</a>
+            <a href="#unit5">🧪 Unit V: Hypothesis Tests</a>
+            <a href="#matrix">🎯 Syllabus & CO Matrix</a>
+            <a href="#formulas">📋 Formula Sheet</a>
+        </div>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             SECTION 1: SYSTEM ARCHITECTURE & WORKING
+        ───────────────────────────────────────────────────────────── -->
+        <section class="content-section" id="architecture">
+            <h2 class="section-title">
+                <span class="icon">🏗️</span>
+                How the Application Works: End-to-End Execution Pipeline
+            </h2>
+            <p class="section-desc">
+                When an analysis is triggered (via Web Dashboard, Desktop GUI, or CLI), the system executes a disciplined 7-step pipeline.
+                Financial time series are cleaned, scaled, decomposed, modeled via polynomial regression under bias-variance trade-off optimization,
+                forecasted with uncertainty bounds, and verified using 5 formal statistical tests.
+            </p>
+
+            <div class="pipeline-flow">
+                <!-- Step 1 -->
+                <div class="pipeline-card">
+                    <div class="pipeline-card-top">
+                        <span class="pipeline-step-num">STEP 01</span>
+                        <span class="file-tag">data_loader.py</span>
+                    </div>
+                    <h3>📥 Data Collection & Cleaning</h3>
+                    <p>
+                        Downloads 2 years of live market data using <code>yfinance</code>. Filters out missing rows, standardizes closing prices, and stores persistent CSV snapshots in <code>data/</code> for offline fallback.
+                    </p>
+                    <ul class="key-actions">
+                        <li>Computes daily % returns: $R_t = \frac{P_t - P_{t-1}}{P_{t-1}} \times 100$</li>
+                        <li>Generates scaled time index $x_{\text{scaled}} = x / x_{\text{max}} \in [0, 1]$</li>
+                        <li>Saves <code>01_closing_price.png</code></li>
+                    </ul>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="pipeline-card">
+                    <div class="pipeline-card-top">
+                        <span class="pipeline-step-num">STEP 02</span>
+                        <span class="file-tag">descriptive.py</span>
+                    </div>
+                    <h3>📊 Central Tendency & Dispersion</h3>
+                    <p>
+                        Computes Mean, Median, and Mode of price levels and daily return percentages. Directly implements statistical formulas from scratch in Python to cross-validate against NumPy libraries.
+                    </p>
+                    <ul class="key-actions">
+                        <li>Sample Mean: $\bar{x} = \frac{1}{n}\sum x_i$</li>
+                        <li>Bessel-corrected Std Dev: $s = \sqrt{\frac{\sum (x_i - \bar{x})^2}{n-1}}$</li>
+                        <li>Continuous price binning for Mode identification</li>
+                    </ul>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="pipeline-card">
+                    <div class="pipeline-card-top">
+                        <span class="pipeline-step-num">STEP 03</span>
+                        <span class="file-tag">descriptive.py</span>
+                    </div>
+                    <h3>🌊 Time Series Decomposition</h3>
+                    <p>
+                        Separates raw fluctuations into the 4 classical time series components: Trend ($T$), Seasonal ($S$), Cyclical ($C$), and Irregular noise ($I$). Applies two complementary trend measurement methods.
+                    </p>
+                    <ul class="key-actions">
+                        <li><strong>Freehand Method:</strong> Quarterly midpoint trend curve (<code>02_freehand_trend.png</code>)</li>
+                        <li><strong>Moving Average Method:</strong> 5-day fast MA & 20-day slow MA (<code>03_moving_average.png</code>)</li>
+                    </ul>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="pipeline-card">
+                    <div class="pipeline-card-top">
+                        <span class="pipeline-step-num">STEP 04</span>
+                        <span class="file-tag">descriptive.py</span>
+                    </div>
+                    <h3>🔔 Return Probability Modeling</h3>
+                    <p>
+                        Treats daily return percentage as a continuous random variable $X$. Fits a Gaussian Normal distribution $\mathcal{N}(\mu, \sigma)$ over the return frequency histogram.
+                    </p>
+                    <ul class="key-actions">
+                        <li>Plots fitted PDF vs empirical density (<code>04_returns_normal.png</code>)</li>
+                        <li>Calculates $P(X > 0) = 1 - \Phi(0)$ (up-day probability)</li>
+                        <li>Calculates $P(X < -2\%) = \Phi(-2)$ (extreme downside risk)</li>
+                    </ul>
+                </div>
+
+                <!-- Steps 5-6 -->
+                <div class="pipeline-card">
+                    <div class="pipeline-card-top">
+                        <span class="pipeline-step-num">STEP 05-06</span>
+                        <span class="file-tag">model.py</span>
+                    </div>
+                    <h3>📈 Polynomial Model & Forecasting</h3>
+                    <p>
+                        Splits data chronologically (80% Train, 20% Test). Fits polynomials of degrees 1 to 6. Picks the optimal degree by lowest test MSE to eliminate overfitting. Forecasts the next 10 trading days.
+                    </p>
+                    <ul class="key-actions">
+                        <li>Degree evaluation: Train MSE vs Test MSE (<code>05_degree_selection.png</code>)</li>
+                        <li>Calculates Pearson $r$ and Spearman Rank $\rho$</li>
+                        <li>10-day forecast with $95\%$ prediction interval $\hat{y} \pm 1.96\sigma$ (<code>07_forecast.png</code>)</li>
+                    </ul>
+                </div>
+
+                <!-- Step 7 -->
+                <div class="pipeline-card">
+                    <div class="pipeline-card-top">
+                        <span class="pipeline-step-num">STEP 07</span>
+                        <span class="file-tag">hypothesis_tests.py</span>
+                    </div>
+                    <h3>🧪 Statistical Hypothesis Validation</h3>
+                    <p>
+                        Validates the modeling assumptions using five academic hypothesis tests at $\alpha = 0.05$. Verifies residual unbiasedness, variance improvement, normality, and predictive independence.
+                    </p>
+                    <ul class="key-actions">
+                        <li>$95\%$ CI and $t$-test on mean daily return</li>
+                        <li>One-sample $t$-test on out-of-sample residuals</li>
+                        <li>$F$-test: linear vs polynomial residual variance</li>
+                        <li>$\chi^2$ Goodness of Fit & $\chi^2$ Independence</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Technical Callouts -->
+            <div class="callout-grid">
+                <div class="callout-box">
+                    <h4>⚙️ Why Scale Input Days $x$ to $[0, 1]$?</h4>
+                    <p>
+                        In a 2-year trading period ($n \approx 500$), raising unscaled day 500 to degree 6 yields $500^6 \approx 1.56 \times 10^{16}$.
+                        Such gigantic numbers cause severe ill-conditioning in the Vandermonde matrix and floating-point roundoff catastrophe. Normalizing $x_{\text{scaled}} = x / x_{\text{max}}$ ensures all powers $x^d \in [0, 1]$, providing high numerical stability.
+                    </p>
+                </div>
+
+                <div class="callout-box green">
+                    <h4>⏱️ Why Temporal Split (No Shuffling)?</h4>
+                    <p>
+                        Standard machine learning uses random k-fold shuffling. However, in financial time series, shuffling causes severe <strong>Lookahead Bias</strong>: training models on future data to predict the past. We strictly split the first 80% as Train and the final 20% as Test to simulate genuine future forecasting.
+                    </p>
+                </div>
+
+                <div class="callout-box orange">
+                    <h4>⚠️ The Limitation of Polynomial Extrapolation</h4>
+                    <p>
+                        While polynomial regression fits non-linear turning points smoothly within the sample, polynomial tails diverge rapidly toward $\pm \infty$ outside the sample domain (Runge's phenomenon). We therefore deliberately restrict forecasting to a short, realistic <strong>10 trading day horizon</strong> with a $\pm 1.96\sigma$ uncertainty band.
+                    </p>
+                </div>
+
+                <div class="callout-box cyan">
+                    <h4>🌐 Thread-Safe Web Execution Architecture</h4>
+                    <p>
+                        Matplotlib's plotting engine relies on shared global state. To prevent concurrent HTTP requests from corrupting chart buffers, <code>web_app.py</code> uses a non-blocking <code>threading.Lock()</code>, captures standard output streams in memory via <code>io.StringIO</code>, and encodes plots directly into Base64 URIs returned via JSON.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             SECTION 2: UNIT III CONCEPTS
+        ───────────────────────────────────────────────────────────── -->
+        <section class="content-section" id="unit3">
+            <h2 class="section-title">
+                <span class="icon">📐</span>
+                Unit III: Continuous Probability Distributions & Returns
+            </h2>
+            <p class="section-desc">
+                Continuous random variables allow us to quantify uncertainty in financial returns and residual prediction errors.
+            </p>
+
+            <!-- Concept 1: Normal Distribution of Returns -->
+            <div class="concept-card">
+                <div class="concept-header">
+                    <div class="concept-title">
+                        <span>1. Daily Returns as a Continuous Random Variable</span>
+                    </div>
+                    <div class="concept-badges">
+                        <span class="badge badge--unit3">Unit III</span>
+                        <span class="badge badge--co">CO3</span>
+                        <span class="code-link">descriptive.py → returns_distribution()</span>
+                    </div>
+                </div>
+                <div class="concept-body">
+                    <div class="concept-explanation">
+                        <p>
+                            Raw stock prices $P_t$ are non-stationary and non-Normal. However, the daily percentage return $R_t = \frac{P_t - P_{t-1}}{P_{t-1}} \times 100$ behaves approximately as a continuous random variable following a Gaussian bell curve $\mathcal{N}(\mu, \sigma)$.
+                        </p>
+                        <p>
+                            <strong>What this concept does in the project:</strong>
+                        </p>
+                        <ul>
+                            <li>Fits the Normal Probability Density Function (PDF) curve over the empirical histogram of returns.</li>
+                            <li>Enables investment analysts to compute probabilities of real market outcomes using the Cumulative Distribution Function (CDF).</li>
+                            <li>$P(\text{Return} > 0) = 1 - \Phi\left(\frac{0 - \mu}{\sigma}\right)$: Probability of an upward trading day.</li>
+                            <li>$P(\text{Return} < -2\%) = \Phi\left(\frac{-2 - \mu}{\sigma}\right)$: Probability of experiencing a drop worse than $2\%$ on any given day.</li>
+                        </ul>
+                    </div>
+                    <div class="formula-box">
+                        <span class="formula-title">Normal Probability Density Function (PDF)</span>
+                        <div class="math-display">
+                            $$f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x - \mu}{\sigma}\right)^2}$$
+                        </div>
+                        <span class="formula-title">Cumulative Distribution Function (CDF)</span>
+                        <div class="math-display">
+                            $$\Phi(z) = \int_{-\infty}^z \frac{1}{\sqrt{2\pi}} e^{-u^2/2} du$$
+                        </div>
+                        <div class="variables">
+                            $x$: daily return % &emsp; $\mu$: mean return &emsp; $\sigma$: return standard deviation (volatility)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 2: Normal Residuals Assumption for Prediction Bands -->
+            <div class="concept-card">
+                <div class="concept-header">
+                    <div class="concept-title">
+                        <span>2. Gaussian Residuals & 95% Forecast Prediction Interval</span>
+                    </div>
+                    <div class="concept-badges">
+                        <span class="badge badge--unit3">Unit III</span>
+                        <span class="badge badge--co">CO3</span>
+                        <span class="code-link">model.py → forecast()</span>
+                    </div>
+                </div>
+                <div class="concept-body">
+                    <div class="concept-explanation">
+                        <p>
+                            Under classical regression theory, prediction errors (residuals) are assumed to be independent and identically distributed Normal random variables: $\epsilon_i \sim \mathcal{N}(0, \sigma_{\text{res}}^2)$.
+                        </p>
+                        <p>
+                            <strong>What this concept does in the project:</strong>
+                        </p>
+                        <ul>
+                            <li>By the properties of the standard Normal distribution, $95.44\%$ of probability mass lies within $\pm 1.96$ standard deviations of the mean: $P(-1.96 \le Z \le 1.96) \approx 0.95$.</li>
+                            <li>For future days $t \in [1, 10]$, we construct a <strong>95% Prediction Band</strong>: $[\hat{y}_t - 1.96\sigma_{\text{res}}, \; \hat{y}_t + 1.96\sigma_{\text{res}}]$.</li>
+                            <li>This directly satisfies <strong>CO3 (Predict data with uncertainty)</strong> by communicating forecast precision rather than a misleading single-point estimate.</li>
+                        </ul>
+                    </div>
+                    <div class="formula-box">
+                        <span class="formula-title">Residual Standard Deviation (Adjusted for DoF)</span>
+                        <div class="math-display">
+                            $$\sigma_{\text{res}} = \sqrt{\frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{n - (d + 1)}}$$
+                        </div>
+                        <span class="formula-title">95% Prediction Interval</span>
+                        <div class="math-display">
+                            $$\text{Forecast Band} = \hat{y}_{\text{future}} \pm 1.96 \cdot \sigma_{\text{res}}$$
+                        </div>
+                        <div class="variables">
+                            $n$: total observations &emsp; $d$: polynomial degree &emsp; $d+1$: number of estimated coefficients
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             SECTION 3: UNIT IV CONCEPTS
+        ───────────────────────────────────────────────────────────── -->
+        <section class="content-section" id="unit4">
+            <h2 class="section-title">
+                <span class="icon">📊</span>
+                Unit IV: Descriptive Statistics, Time Series & Regression
+            </h2>
+            <p class="section-desc">
+                Descriptive statistics summarize data distributions, time series methods isolate underlying trend movements, and regression models non-linear relationships.
+            </p>
+
+            <!-- Concept 1: Central Tendency -->
+            <div class="concept-card">
+                <div class="concept-header">
+                    <div class="concept-title">
+                        <span>1. Measures of Central Tendency & Dispersion</span>
+                    </div>
+                    <div class="concept-badges">
+                        <span class="badge badge--unit4">Unit IV</span>
+                        <span class="code-link">descriptive.py → central_tendency()</span>
+                    </div>
+                </div>
+                <div class="concept-body">
+                    <div class="concept-explanation">
+                        <p>
+                            Summarizes the central location and variability of stock price levels and daily return percentages.
+                        </p>
+                        <ul>
+                            <li><strong>Mean ($\bar{x}$):</strong> The arithmetic average representing baseline expected return.</li>
+                            <li><strong>Median:</strong> The 50th percentile, unaffected by extreme single-day market crashes or rallies.</li>
+                            <li><strong>Mode:</strong> The most frequent value, calculated by rounding continuous prices to identify key resistance/support pricing clusters.</li>
+                            <li><strong>Dual Calculation:</strong> Implemented via mathematical summation in pure Python to verify equivalence with optimized NumPy functions.</li>
+                        </ul>
+                    </div>
+                    <div class="formula-box">
+                        <span class="formula-title">Sample Mean</span>
+                        <div class="math-display">
+                            $$\bar{x} = \frac{1}{n}\sum_{i=1}^n x_i$$
+                        </div>
+                        <span class="formula-title">Sample Standard Deviation (Bessel Corrected)</span>
+                        <div class="math-display">
+                            $$s = \sqrt{\frac{1}{n-1}\sum_{i=1}^n (x_i - \bar{x})^2}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 2: Components of a Time Series & Trend Analysis -->
+            <div class="concept-card">
+                <div class="concept-header">
+                    <div class="concept-title">
+                        <span>2. Time Series Components & Non-Parametric Trend Measurement</span>
+                    </div>
+                    <div class="concept-badges">
+                        <span class="badge badge--unit4">Unit IV</span>
+                        <span class="code-link">descriptive.py → explain_components(), freehand_trend(), moving_average_trend()</span>
+                    </div>
+                </div>
+                <div class="concept-body">
+                    <div class="concept-explanation">
+                        <p>
+                            A financial time series is viewed under the classical decomposition model: $Y_t = T_t + S_t + C_t + I_t$ (or multiplicative $T \times S \times C \times I$).
+                        </p>
+                        <ul>
+                            <li><strong>Trend ($T$):</strong> Secular long-term trajectory over multi-month horizons.</li>
+                            <li><strong>Seasonal ($S$):</strong> Repeating intra-year calendar effects (e.g. quarterly corporate earnings seasons).</li>
+                            <li><strong>Cyclical ($C$):</strong> Multi-year macroeconomic business expansions and recessions.</li>
+                            <li><strong>Irregular ($I$):</strong> Random shocks, headline news, and geopolitical surprises.</li>
+                            <li><strong>Freehand (Graphic) Method:</strong> Mimics subjective visual trend lines by computing quarterly midpoints and connecting them smoothly.</li>
+                            <li><strong>Moving Average Method:</strong> Calculates rolling 5-day (fast) and 20-day (slow) means to filter high-frequency irregular noise.</li>
+                        </ul>
+                    </div>
+                    <div class="formula-box">
+                        <span class="formula-title">Simple Moving Average of Order $k$</span>
+                        <div class="math-display">
+                            $$\text{MA}_k(t) = \frac{1}{k} \sum_{i=0}^{k-1} P_{t-i}$$
+                        </div>
+                        <div class="variables">
+                            $\text{MA}_5$: captures weekly momentum &emsp; $\text{MA}_{20}$: captures monthly baseline trend
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 3: Correlation & Polynomial Regression -->
+            <div class="concept-card">
+                <div class="concept-header">
+                    <div class="concept-title">
+                        <span>3. Karl Pearson & Spearman Correlation + Polynomial Regression</span>
+                    </div>
+                    <div class="concept-badges">
+                        <span class="badge badge--unit4">Unit IV</span>
+                        <span class="badge badge--co">CO4</span>
+                        <span class="code-link">model.py → fit_polynomial(), select_degree(), correlations()</span>
+                    </div>
+                </div>
+                <div class="concept-body">
+                    <div class="concept-explanation">
+                        <p>
+                            Models non-linear trajectories over time and evaluates how well predicted prices align with actual market values.
+                        </p>
+                        <ul>
+                            <li><strong>Karl Pearson ($r$):</strong> Quantifies linear co-movement between test predictions $\hat{y}$ and actual prices $y$.</li>
+                            <li><strong>Spearman Rank ($\rho$):</strong> Evaluates monotonic rank correlation, verifying whether predicted peaks and valleys align with actual peaks and valleys regardless of scale.</li>
+                            <li><strong>Degree Selection & Bias-Variance Trade-off:</strong> Fits degrees $d \in \{1, 2, 3, 4, 5, 6\}$. A degree that is too low underfits (high bias), while a degree that is too high overfits (train MSE approaches 0, but test MSE explodes due to high variance). We choose the degree with the <strong>minimum Test MSE</strong> on unseen data (satisfying <strong>CO4</strong>).</li>
+                        </ul>
+                    </div>
+                    <div class="formula-box">
+                        <span class="formula-title">Karl Pearson Product-Moment Correlation</span>
+                        <div class="math-display">
+                            $$r = \frac{\sum (y_i - \bar{y})(\hat{y}_i - \bar{\hat{y}})}{\sqrt{\sum (y_i - \bar{y})^2 \sum (\hat{y}_i - \bar{\hat{y}})^2}}$$
+                        </div>
+                        <span class="formula-title">Spearman Rank Correlation</span>
+                        <div class="math-display">
+                            $$\rho = 1 - \frac{6 \sum d_i^2}{n(n^2 - 1)}, \quad d_i = \text{rank}(y_i) - \text{rank}(\hat{y}_i)$$
+                        </div>
+                        <span class="formula-title">Coefficient of Determination ($R^2$)</span>
+                        <div class="math-display">
+                            $$R^2 = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             SECTION 4: UNIT V HYPOTHESIS TESTING
+        ───────────────────────────────────────────────────────────── -->
+        <section class="content-section" id="unit5">
+            <h2 class="section-title">
+                <span class="icon">🧪</span>
+                Unit V: Hypothesis Testing & Statistical Model Validation
+            </h2>
+            <p class="section-desc">
+                In statistical data analysis, a model cannot simply be assumed to work because it fit historical points.
+                We execute 5 formal hypothesis tests at significance level $\alpha = 0.05$ to validate our assumptions.
+            </p>
+
+            <div class="test-detail-grid">
+                <!-- Test 1 -->
+                <div class="test-detail-card">
+                    <h3>1. 95% CI & Test for Mean Daily Return</h3>
+                    <div class="hypothesis-pair">
+                        <div class="h0">H₀: μ = 0 (Mean daily return is zero)</div>
+                        <div class="h1">H₁: μ ≠ 0 (Mean daily return is non-zero)</div>
+                    </div>
+                    <p class="test-desc">
+                        Determines whether the stock has a statistically significant positive or negative drift, or if daily returns are indistinguishable from random noise centered at zero.
+                    </p>
+                    <div class="math-display" style="font-size:0.9rem; margin-bottom:10px;">
+                        $$\text{CI}_{95\%} = \bar{x} \pm t_{\alpha/2, \; n-1} \cdot \frac{s}{\sqrt{n}}, \quad t = \frac{\bar{x} - 0}{s / \sqrt{n}}$$
+                    </div>
+                    <div class="decision-rule">
+                        <strong>Decision Rule:</strong> Reject $H_0$ if $p < 0.05$ or if 0 lies strictly outside the 95% Confidence Interval.
+                    </div>
+                </div>
+
+                <!-- Test 2 -->
+                <div class="test-detail-card">
+                    <h3>2. Student's t-Test on Test Residuals (Bias Test)</h3>
+                    <div class="hypothesis-pair">
+                        <div class="h0">H₀: μ_e = 0 (Model is unbiased on unseen test data)</div>
+                        <div class="h1">H₁: μ_e ≠ 0 (Model has systematic directional bias)</div>
+                    </div>
+                    <p class="test-desc">
+                        Examines the out-of-sample prediction errors $e_i = y_{\text{test}, i} - \hat{y}_{\text{test}, i}$. An unbiased predictive model must have errors centered on zero.
+                    </p>
+                    <div class="math-display" style="font-size:0.9rem; margin-bottom:10px;">
+                        $$t = \frac{\bar{e} - 0}{s_e / \sqrt{n_{\text{test}}}}, \quad df = n_{\text{test}} - 1$$
+                    </div>
+                    <div class="decision-rule">
+                        <strong>Decision Rule:</strong> Reject $H_0$ if $p < 0.05$. If rejected, the model systematically over- or under-predicts prices on unseen test days.
+                    </div>
+                </div>
+
+                <!-- Test 3 -->
+                <div class="test-detail-card">
+                    <h3>3. Snedecor's F-Test for Equality of Variances</h3>
+                    <div class="hypothesis-pair">
+                        <div class="h0">H₀: σ²_linear = σ²_poly (Equal unexplained variance)</div>
+                        <div class="h1">H₁: σ²_linear > σ²_poly (Polynomial significantly reduces variance)</div>
+                    </div>
+                    <p class="test-desc">
+                        Justifies the academic choice of a polynomial curve over a simple straight line by testing if the reduction in residual variance is statistically significant.
+                    </p>
+                    <div class="math-display" style="font-size:0.9rem; margin-bottom:10px;">
+                        $$F = \frac{\text{SSE}_{\text{linear}} / (n - 2)}{\text{SSE}_{\text{poly}} / (n - (d + 1))}$$
+                    </div>
+                    <div class="decision-rule">
+                        <strong>Decision Rule:</strong> Right-tailed test. Reject $H_0$ if $p < 0.05$. Proves the polynomial curvature is mathematically necessary.
+                    </div>
+                </div>
+
+                <!-- Test 4 -->
+                <div class="test-detail-card">
+                    <h3>4. Pearson's χ² Goodness of Fit (Residual Normality)</h3>
+                    <div class="hypothesis-pair">
+                        <div class="h0">H₀: Residuals follow a Normal Distribution</div>
+                        <div class="h1">H₁: Residuals do NOT follow a Normal Distribution</div>
+                    </div>
+                    <p class="test-desc">
+                        Validates the theoretical foundation of the $\pm 1.96\sigma$ forecast interval. Discretizes residuals into bins and compares observed counts against expected Gaussian counts. Bins with $E_i < 5$ are dynamically merged.
+                    </p>
+                    <div class="math-display" style="font-size:0.9rem; margin-bottom:10px;">
+                        $$\chi^2 = \sum_{j=1}^k \frac{(O_j - E_j)^2}{E_j}, \quad df = k - 1 - 2$$
+                    </div>
+                    <div class="decision-rule">
+                        <strong>Decision Rule:</strong> Fail to reject $H_0$ ($p \ge 0.05$) confirms residuals are Gaussian, justifying the 95% forecast band.
+                    </div>
+                </div>
+
+                <!-- Test 5 -->
+                <div class="test-detail-card">
+                    <h3>5. Pearson's χ² Test of Independence (Contingency)</h3>
+                    <div class="hypothesis-pair">
+                        <div class="h0">H₀: Actual and Predicted High/Low states are Independent</div>
+                        <div class="h1">H₁: Actual and Predicted High/Low states are Dependent / Related</div>
+                    </div>
+                    <p class="test-desc">
+                        Builds a $2 \times 2$ contingency table categorizing actual and predicted test prices as High (above median) or Low (below median). Employs Yates' continuity correction.
+                    </p>
+                    <div class="math-display" style="font-size:0.9rem; margin-bottom:10px;">
+                        $$\chi^2 = \sum_{i=1}^2 \sum_{j=1}^2 \frac{(|O_{ij} - E_{ij}| - 0.5)^2}{E_{ij}}, \quad df = 1$$
+                    </div>
+                    <div class="decision-rule">
+                        <strong>Decision Rule:</strong> Reject $H_0$ ($p < 0.05$) confirms that the polynomial model reliably separates high-price regimes from low-price regimes.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             SECTION 5: SYLLABUS & CO MAPPING MATRIX
+        ───────────────────────────────────────────────────────────── -->
+        <section class="content-section" id="matrix">
+            <h2 class="section-title">
+                <span class="icon">🎯</span>
+                Syllabus Topic & Course Outcome (CO) Mapping Matrix
+            </h2>
+            <p class="section-desc">
+                Clear reference linking every academic syllabus topic and Course Outcome to the exact function in the project codebase.
+            </p>
+
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Unit</th>
+                            <th>Syllabus Topic</th>
+                            <th>Code File</th>
+                            <th>Function Name</th>
+                            <th>Target CO</th>
+                            <th>Project Application</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge--unit3">Unit III</span></td>
+                            <td>Continuous Random Variables & Normal Distribution</td>
+                            <td><span class="code-link">descriptive.py</span></td>
+                            <td><code>returns_distribution()</code></td>
+                            <td><span class="badge badge--co">CO3</span></td>
+                            <td>Models daily returns as $X \sim \mathcal{N}(\mu, \sigma)$ & calculates risk probabilities.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit3">Unit III</span></td>
+                            <td>Normal Distribution of Residuals</td>
+                            <td><span class="code-link">model.py</span></td>
+                            <td><code>forecast()</code></td>
+                            <td><span class="badge badge--co">CO3</span></td>
+                            <td>Builds 10-day forecast with empirical $\pm 1.96\sigma$ uncertainty bounds.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit4">Unit IV</span></td>
+                            <td>Measures of Central Tendency</td>
+                            <td><span class="code-link">descriptive.py</span></td>
+                            <td><code>central_tendency()</code></td>
+                            <td>—</td>
+                            <td>Mean, median, and continuous rounded mode for prices and percentage returns.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit4">Unit IV</span></td>
+                            <td>Components of a Time Series (T, S, C, I)</td>
+                            <td><span class="code-link">descriptive.py</span></td>
+                            <td><code>explain_components()</code></td>
+                            <td>—</td>
+                            <td>Theory breakdown explaining seasonal earnings, cyclical waves, and random noise.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit4">Unit IV</span></td>
+                            <td>Measurement of Trend: Freehand Method</td>
+                            <td><span class="code-link">descriptive.py</span></td>
+                            <td><code>freehand_trend()</code></td>
+                            <td>—</td>
+                            <td>Quarterly price midpoint tracking simulating graphic trend drawing.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit4">Unit IV</span></td>
+                            <td>Measurement of Trend: Moving Average</td>
+                            <td><span class="code-link">descriptive.py</span></td>
+                            <td><code>moving_average_trend()</code></td>
+                            <td>—</td>
+                            <td>5-day short term and 20-day medium term rolling smoothing.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit4">Unit IV</span></td>
+                            <td>Karl Pearson Correlation Coefficient</td>
+                            <td><span class="code-link">model.py</span></td>
+                            <td><code>correlations()</code></td>
+                            <td><span class="badge badge--co">CO4</span></td>
+                            <td>Evaluates linear co-movement between predictions and actual prices.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit4">Unit IV</span></td>
+                            <td>Spearman Rank Correlation Coefficient</td>
+                            <td><span class="code-link">model.py</span></td>
+                            <td><code>correlations()</code></td>
+                            <td><span class="badge badge--co">CO4</span></td>
+                            <td>Evaluates monotonic ranking agreement between predicted and test prices.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit4">Unit IV</span></td>
+                            <td>Polynomial Curve Fitting & Model Selection</td>
+                            <td><span class="code-link">model.py</span></td>
+                            <td><code>select_degree()</code></td>
+                            <td><span class="badge badge--co">CO4</span></td>
+                            <td>Compares degrees 1-6 using Test MSE to balance underfitting vs overfitting.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit5">Unit V</span></td>
+                            <td>Confidence Interval for Population Mean</td>
+                            <td><span class="code-link">hypothesis_tests.py</span></td>
+                            <td><code>confidence_interval_mean()</code></td>
+                            <td><span class="badge badge--co">CO5</span></td>
+                            <td>95% CI for mean return and one-sample test for zero expected return.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit5">Unit V</span></td>
+                            <td>Student's t-Test for Single Mean</td>
+                            <td><span class="code-link">hypothesis_tests.py</span></td>
+                            <td><code>t_test_residuals()</code></td>
+                            <td><span class="badge badge--co">CO5</span></td>
+                            <td>Tests whether test residual errors are centered on zero (model unbiasedness).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit5">Unit V</span></td>
+                            <td>F-Test for Equality of Two Variances</td>
+                            <td><span class="code-link">hypothesis_tests.py</span></td>
+                            <td><code>f_test()</code></td>
+                            <td><span class="badge badge--co">CO5</span></td>
+                            <td>Compares residual variance of straight line vs polynomial fit.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit5">Unit V</span></td>
+                            <td>Chi-Square Goodness of Fit Test</td>
+                            <td><span class="code-link">hypothesis_tests.py</span></td>
+                            <td><code>chi_square_normality()</code></td>
+                            <td><span class="badge badge--co">CO5</span></td>
+                            <td>Tests if test residuals conform to a theoretical Gaussian Normal distribution.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge--unit5">Unit V</span></td>
+                            <td>Chi-Square Test of Independence</td>
+                            <td><span class="code-link">hypothesis_tests.py</span></td>
+                            <td><code>chi_square_independence()</code></td>
+                            <td><span class="badge badge--co">CO5</span></td>
+                            <td>$2 \times 2$ contingency table checking actual vs predicted High/Low states.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ─────────────────────────────────────────────────────────────
+             SECTION 6: MATHEMATICAL FORMULAS CHEAT SHEET
+        ───────────────────────────────────────────────────────────── -->
+        <section class="content-section" id="formulas">
+            <h2 class="section-title">
+                <span class="icon">📋</span>
+                Complete Mathematical Formula Cheat Sheet
+            </h2>
+            <p class="section-desc">
+                All mathematical and statistical formulas used in the project, formatted for academic presentation and quick review.
+            </p>
+
+            <div class="callout-grid">
+                <div class="formula-box">
+                    <span class="formula-title">Daily Percentage Return</span>
+                    <div class="math-display">$$R_t = \left(\frac{P_t - P_{t-1}}{P_{t-1}}\right) \times 100$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Input Time Scaling</span>
+                    <div class="math-display">$$x_{\text{scaled}} = \frac{x}{\max(x)} \in [0, 1]$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Sample Mean & Variance</span>
+                    <div class="math-display">$$\bar{x} = \frac{\sum x_i}{n}, \quad s^2 = \frac{\sum (x_i - \bar{x})^2}{n - 1}$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Polynomial Regression (Degree d)</span>
+                    <div class="math-display">$$\hat{y} = \beta_0 + \beta_1 x + \beta_2 x^2 + \dots + \beta_d x^d$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Mean Squared Error (MSE)</span>
+                    <div class="math-display">$$\text{MSE} = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Coefficient of Determination</span>
+                    <div class="math-display">$$R^2 = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Karl Pearson Correlation (r)</span>
+                    <div class="math-display">$$r = \frac{\sum (a_i - \bar{a})(p_i - \bar{p})}{\sqrt{\sum (a_i - \bar{a})^2 \sum (p_i - \bar{p})^2}}$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Spearman Rank Correlation (ρ)</span>
+                    <div class="math-display">$$\rho = 1 - \frac{6 \sum d_i^2}{n(n^2 - 1)}$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">95% Forecast Prediction Interval</span>
+                    <div class="math-display">$$\hat{y}_{\text{future}} \pm 1.96 \cdot \sigma_{\text{res}}$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">95% CI for Mean Return</span>
+                    <div class="math-display">$$\bar{x} \pm t_{\alpha/2, \; n-1} \cdot \frac{s}{\sqrt{n}}$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Snedecor's F-Statistic</span>
+                    <div class="math-display">$$F = \frac{s_1^2}{s_2^2} = \frac{\text{SSE}_{\text{linear}} / (n - 2)}{\text{SSE}_{\text{poly}} / (n - (d + 1))}$$</div>
+                </div>
+
+                <div class="formula-box">
+                    <span class="formula-title">Chi-Square Statistic</span>
+                    <div class="math-display">$$\chi^2 = \sum \frac{(O - E)^2}{E}$$</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p><strong>StockStat AI</strong> — Concepts and Architecture | 25CS203 Probability & Statistics for Computer Science</p>
+            <p style="margin-top: 6px;">Developed for academic study, model validation, and financial trend prediction using Polynomial Regression.</p>
+        </footer>
+    </div>
+</body>
+</html>
